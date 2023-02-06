@@ -1,0 +1,2 @@
+0 shape
+1 notshape
