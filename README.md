@@ -1,6 +1,8 @@
 # 2023GamePieceVision
 ## Ongoing Project!
-2023 FRC vision to predict game pieces from a camera and manipulate them to find the distance and rotation from them.
+
+2023 FRC vision program to predict game pieces from a camera and manipulate the video to find the distance and rotation from them.
+built using Teachable Machine and GRIP
 
 **You will need to download the following dependancies:**
 - Keras (`pip install keras`)
