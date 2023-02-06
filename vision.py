@@ -2,6 +2,7 @@ from keras.models import load_model  # TensorFlow is required for Keras to work
 import cv2  # Install opencv-python
 import numpy as np
 from pipeline import *
+from pipeline.example import ExamplePipeline
 
 ####IMPORTANT NOTES####
 #index of 0 = shape
@@ -49,7 +50,7 @@ while True:
 
     # Testing class_name usage
     if index == 1: #nonshape detected
-        print("test", end="\n")
+        ExamplePipeline.calledexample(camera)
     elif index == 0: #shape destected
         print("sadge", end="\n")
     else: #error occured
