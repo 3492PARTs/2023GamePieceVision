@@ -10,4 +10,4 @@ Built using Teachable Machine and GRIP.
 - OpenCV (`pip install opencv-python`)
 - Tensorflow (https://youtu.be/3ESKiJKzZwE for a tutorial, it is very hard to install without watching the video first)
 
-Once all dependancies are installed, you can start by running the `vision.py` file.
+Once all dependancies are installed, you can start by running the `vision.py` file. Remember to read the important notes in each file to keep up with changes and/or to do's.
