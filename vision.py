@@ -2,7 +2,8 @@ from keras.models import load_model  # TensorFlow is required for Keras to work
 import cv2  # Install opencv-python
 import numpy as np
 from pipeline import *
-from pipeline.example import ExamplePipeline
+#from pipeline.example import ExamplePipeline
+from pipeline.dualpipeline import DualPipeline
 
 ####IMPORTANT NOTES####
 #index of 0 = shape
@@ -35,7 +36,8 @@ class_names = open("modeldata\labels.txt", "r").readlines()
 camera = cv2.VideoCapture(0)
 
 # Initiate the pipeline
-pipe = ExamplePipeline()
+#pipe = ExamplePipeline()
+dualpipe = DualPipeline()
 
 while True:
     # Grab the webcamera's image.
@@ -69,8 +71,10 @@ while True:
         
         # You could technically use 'image' here but since it was resize you would need to undo that first
         # I found it easier just to make a duplicate without the resizing: 'reimage'.
-        pipe.process(reimage)
-        print(pipe.filter_contours_0_output)
+        #pipe.process(reimage)
+        #print(pipe.filter_contours_0_output)
+        dualpipe.process(reimage)
+        #print(dualpipe.filter_contours_0_output)
 
     else: #error occured
 
