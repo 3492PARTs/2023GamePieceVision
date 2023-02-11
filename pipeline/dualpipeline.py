@@ -60,6 +60,35 @@ class DualPipeline:
 
         self.find_contours_1_output = None
 
+        self.__filter_contours_0_contours = self.find_contours_0_output
+        self.__filter_contours_0_min_area = 100.0
+        self.__filter_contours_0_min_perimeter = 0.0
+        self.__filter_contours_0_min_width = 0.0
+        self.__filter_contours_0_max_width = 1000.0
+        self.__filter_contours_0_min_height = 0.0
+        self.__filter_contours_0_max_height = 1000.0
+        self.__filter_contours_0_solidity = [0, 100]
+        self.__filter_contours_0_max_vertices = 1000000.0
+        self.__filter_contours_0_min_vertices = 0.0
+        self.__filter_contours_0_min_ratio = 0.0
+        self.__filter_contours_0_max_ratio = 1000.0
+
+        self.filter_contours_0_output = None
+
+        self.__filter_contours_1_contours = self.find_contours_1_output
+        self.__filter_contours_1_min_area = 700.0
+        self.__filter_contours_1_min_perimeter = 0
+        self.__filter_contours_1_min_width = 0
+        self.__filter_contours_1_max_width = 1000
+        self.__filter_contours_1_min_height = 0
+        self.__filter_contours_1_max_height = 1000
+        self.__filter_contours_1_solidity = [0, 100]
+        self.__filter_contours_1_max_vertices = 1000000
+        self.__filter_contours_1_min_vertices = 0
+        self.__filter_contours_1_min_ratio = 0
+        self.__filter_contours_1_max_ratio = 1000
+
+        self.filter_contours_1_output = None
         
 
 
@@ -84,6 +113,14 @@ class DualPipeline:
             # Step Find_Contours0:
             self.__find_contours_0_input = self.cv_erode_0_output
             (self.find_contours_0_output) = self.__find_contours(self.__find_contours_0_input, self.__find_contours_0_external_only)
+            
+            # Step Filter_Contours0:
+            self.__filter_contours_0_contours = self.find_contours_0_output
+            (self.filter_contours_0_output) = self.__filter_contours(self.__filter_contours_0_contours, self.__filter_contours_0_min_area, self.__filter_contours_0_min_perimeter, self.__filter_contours_0_min_width, self.__filter_contours_0_max_width, self.__filter_contours_0_min_height, self.__filter_contours_0_max_height, self.__filter_contours_0_solidity, self.__filter_contours_0_max_vertices, self.__filter_contours_0_min_vertices, self.__filter_contours_0_min_ratio, self.__filter_contours_0_max_ratio)
+        
+            # Step Extract_ConData0:
+            self.__extract_condata_0_input = self.filter_contours_0_output
+            (self.extract_condata_0_output) = self.__extract_condata(self.__extract_condata_0_input, self.__find_contours_0_input)
         else:
             # Step HSV_Threshold1:
             self.__hsv_threshold_1_input = self.resize_image_output
@@ -96,6 +133,16 @@ class DualPipeline:
             # Step Find_Contours1:
             self.__find_contours_1_input = self.cv_erode_1_output
             (self.find_contours_1_output) = self.__find_contours(self.__find_contours_1_input, self.__find_contours_1_external_only)
+
+            # Step Filter_Contours0:
+            self.__filter_contours_1_contours = self.find_contours_1_output
+            (self.filter_contours_1_output) = self.__filter_contours(self.__filter_contours_1_contours, self.__filter_contours_1_min_area, self.__filter_contours_1_min_perimeter, self.__filter_contours_1_min_width, self.__filter_contours_1_max_width, self.__filter_contours_1_min_height, self.__filter_contours_1_max_height, self.__filter_contours_1_solidity, self.__filter_contours_1_max_vertices, self.__filter_contours_1_min_vertices, self.__filter_contours_1_min_ratio, self.__filter_contours_1_max_ratio)
+
+            # Step Extract_ConData0:
+            self.__extract_condata_1_input = self.filter_contours_1_output
+            (self.extract_condata_1_output) = self.__extract_condata(self.__extract_condata_1_input, self.__find_contours_1_input)
+
+            
 
 
     @staticmethod
@@ -157,27 +204,74 @@ class DualPipeline:
         contours, hierarchy =cv2.findContours(input, mode=mode, method=method)
         ###END GRIP STUFF###
         
-        #own stuff
-
-        #finds width, height, the and the coordinates of one of the verticies
         if contours:
 
-            
+            return contours
 
-            c = max(contours, key=cv2.contourArea)
+    @staticmethod
+    def __filter_contours(input_contours, min_area, min_perimeter, min_width, max_width,
+                        min_height, max_height, solidity, max_vertex_count, min_vertex_count,
+                        min_ratio, max_ratio):
+        """Filters out contours that do not meet certain criteria.
+        Args:
+            input_contours: Contours as a list of numpy.ndarray.
+            min_area: The minimum area of a contour that will be kept.
+            min_perimeter: The minimum perimeter of a contour that will be kept.
+            min_width: Minimum width of a contour.
+            max_width: MaxWidth maximum width.
+            min_height: Minimum height.
+            max_height: Maximimum height.
+            solidity: The minimum and maximum solidity of a contour.
+            min_vertex_count: Minimum vertex Count of the contours.
+            max_vertex_count: Maximum vertex Count.
+            min_ratio: Minimum ratio of width to height.
+            max_ratio: Maximum ratio of width to height.
+        Returns:
+            Contours as a list of numpy.ndarray.
+        """
+        
+        output = []
+        if input_contours != None:
+            for contour in input_contours:
+                x,y,w,h = cv2.boundingRect(contour)
+                if (w < min_width or w > max_width):
+                    continue
+                if (h < min_height or h > max_height):
+                    continue
+                area = cv2.contourArea(contour)
+                if (area < min_area):
+                    continue
+                if (cv2.arcLength(contour, True) < min_perimeter):
+                    continue
+                hull = cv2.convexHull(contour)
+                solid = 100 * area / cv2.contourArea(hull)
+                if (solid < solidity[0] or solid > solidity[1]):
+                    continue
+                if (len(contour) < min_vertex_count or len(contour) > max_vertex_count):
+                    continue
+                ratio = (float)(w) / h
+                if (ratio < min_ratio or ratio > max_ratio):
+                    continue
+                output.append(contour)
+        return output
+
+    @staticmethod
+    def __extract_condata(filtered_contours, hsv_cam):
+            
+        if filtered_contours:
+            c = max(filtered_contours, key=cv2.contourArea)
 
             #creates a bounding rect, finds the center of the rect for rotation
             
             x, y, w, h = cv2.boundingRect(c)
-            centerw = w / 2
-            centerh = h / 2
+            centerw = x+(w / 2)
+            centerh = y+(h / 2)
             area = w*h
 
             #draws a rectangle onto "input", where (x,y) are one vertice, and (x+width, y+height) is the opposite one.
-            cv2.rectangle(input,(x,y),(x+w,y+h),(135,50,30),3)
-            cv2.circle(input, (int(x+centerw),int(y+centerh)),5,(135,50,30),-1)
-            cv2.imshow("result",input)
+            cv2.rectangle(hsv_cam,(x,y),(x+w,y+h),(135,50,30),3)
+            cv2.circle(hsv_cam, (int(centerw),int(centerh)),5,(135,50,30),-1)
+            cv2.imshow("result",hsv_cam)
 
-            return centerh, centerw, x, y, w, h, area
-        else:
-            return None
+            return "centerh = " + str(centerh), "centerw = " + str(centerw), "x coord = " + str(x), "y coord = " + str(y), "rect width = " + str(w), "rect height = " + str(h), "rect area = " + str(area)
+            #return centerh, centerw, x, y, w, h, int(area)

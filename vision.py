@@ -6,12 +6,9 @@ from pipeline import *
 from pipeline.dualpipeline import DualPipeline
 
 ####IMPORTANT NOTES####
-#make sure to check example pipeline to see what changes that need to be made to make dual pipeline work.
 
 #under dualpipe.process(image, {}), the {} determines what game piece you search for, 0 for cone, anything else for cube
 
-#TO DO: CHANGE ALL PIPELINES TO JAVA, NETWORK TABLES ARE WEIRD IN PYTHON. (if it can still keep up with only using python)
-#ignore that to do if pipelines are easier than I thought.
 #######################
 
 
@@ -25,21 +22,28 @@ camera = cv2.VideoCapture(0)
 
 # Initiate the pipeline
 #pipe = ExamplePipeline()
-dualpipe = DualPipeline()
+dualpipecube = DualPipeline()
+dualpipecone = DualPipeline()
 
 while True:
+    
+    ########################## THE REAL IMPORTANT STUFF ###########################
     # Grab the webcamera's image.
     ret, image = camera.read()
 
     # Show the image in a window
     cv2.imshow("Plain Image", image)
     
-    #pipe.process(reimage)
-    #print(pipe.filter_contours_0_output)
-    dualpipe.process(image, 0)
-    
-    if dualpipe.find_contours_0_output != None:
-        print(dualpipe.find_contours_0_output)
+    dualpipecone.process(image, 0)
+    dualpipecube.process(image, 1)
+
+    #if dualpipecone.extract_condata_0_output[6] != None & dualpipecube.extract_condata_1_output[6] != None & dualpipecone.extract_condata_0_output[6] <= dualpipecube.extract_condata_1_output[6]:
+    if dualpipecube.extract_condata_1_output != None:
+        print(dualpipecube.extract_condata_1_output)
+    #elif dualpipecone.extract_condata_0_output[6] != None & dualpipecube.extract_condata_1_output[6] != None & dualpipecone.extract_condata_0_output[6] > dualpipecube.extract_condata_1_output[6]:
+    if dualpipecone.extract_condata_0_output != None:    
+        print(dualpipecone.extract_condata_0_output)
+    ###############################################################################
 
     # Listen to the keyboard for presses.
     keyboard_input = cv2.waitKey(1)
