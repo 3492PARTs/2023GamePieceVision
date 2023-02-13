@@ -24,25 +24,56 @@ camera = cv2.VideoCapture(0)
 #pipe = ExamplePipeline()
 dualpipecube = DualPipeline()
 dualpipecone = DualPipeline()
+dualcalibratecube = DualPipeline()
+dualcalibratecone = DualPipeline()
 
+focal_lengthcube = None
+focal_lengthcone = None
+
+KNOWN_WIDTHCUBE = 512 #########################FIND THIS!!!##########################
+KNOWN_WIDTHCONE = 512 #this too 
+KNOWN_DISTANCE = 2
+
+
+
+calibratecone = cv2.imread("calibration\calibratecone.PNG")
+calibratecube = cv2.imread("calibration\calibratecube.PNG")
+
+######################### FIND FOCAL LENGTH ########################
+dualcalibratecube.process(source0=calibratecube, gametype = 1, focal_length=focal_lengthcube)
+
+if dualcalibratecube.extract_condata_1_output != None:
+    calibratewidthcube = float(dualcalibratecube.extract_condata_1_output[4])
+    focal_lengthcube = (calibratewidthcube * KNOWN_DISTANCE)/KNOWN_WIDTHCUBE
+
+dualcalibratecone.process(source0=calibratecone, gametype = 0, focal_length=focal_lengthcone)
+
+if dualcalibratecone.extract_condata_0_output != None:
+    calibratewidthcone = float(dualcalibratecone.extract_condata_0_output[4])
+    focal_lengthcone = (calibratewidthcone * KNOWN_DISTANCE)/KNOWN_WIDTHCONE
+###################################################################
+
+########
 while True:
     
     ########################## THE REAL IMPORTANT STUFF ###########################
     # Grab the webcamera's image.
     ret, image = camera.read()
+    
 
     # Show the image in a window
     cv2.imshow("Plain Image", image)
     
-    dualpipecone.process(image, 0)
-    dualpipecube.process(image, 1)
+
+    dualpipecone.process(source0=image, gametype=0, focal_length=focal_lengthcone)
+    dualpipecube.process(source0=image, gametype=1, focal_length=focal_lengthcube)
 
     #if dualpipecone.extract_condata_0_output[6] != None & dualpipecube.extract_condata_1_output[6] != None & dualpipecone.extract_condata_0_output[6] <= dualpipecube.extract_condata_1_output[6]:
-    if dualpipecube.extract_condata_1_output != None:
-        print(dualpipecube.extract_condata_1_output)
+    if dualpipecube.find_distance_1_output != None:
+        print(dualpipecube.find_distance_1_output)
     #elif dualpipecone.extract_condata_0_output[6] != None & dualpipecube.extract_condata_1_output[6] != None & dualpipecone.extract_condata_0_output[6] > dualpipecube.extract_condata_1_output[6]:
-    if dualpipecone.extract_condata_0_output != None:    
-        print(dualpipecone.extract_condata_0_output)
+    if dualpipecone.find_distance_0_output != None:    
+        print(dualpipecone.find_distance_0_output)
     ###############################################################################
 
     # Listen to the keyboard for presses.

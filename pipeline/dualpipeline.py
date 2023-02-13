@@ -89,15 +89,25 @@ class DualPipeline:
         self.__filter_contours_1_max_ratio = 1000
 
         self.filter_contours_1_output = None
-        
+
+        self.extract_condata_0_output = None
+        self.extract_condata_1_output = None
+        self.find_distance_1_output = None
+        self.find_distance_0_output = None
+
+        ###################################
+        #distance is in feet, width in pixels
+        self.known_widthcube = 512 ##################FIND THIS!##################
+        self.known_widthcone = 512
+        ###################################
 
 
-    def process(self, source0, gametype):
+    def process(self, source0, gametype, focal_length):
         """
         Runs the pipeline and sets all outputs to new values.
         """
         
-        # Step Resize_Image0:
+        #if camtype == 0:
         self.__resize_image_input = source0
         (self.resize_image_output) = self.__resize_image(self.__resize_image_input, self.__resize_image_width, self.__resize_image_height, self.__resize_image_interpolation)
 
@@ -121,6 +131,13 @@ class DualPipeline:
             # Step Extract_ConData0:
             self.__extract_condata_0_input = self.filter_contours_0_output
             (self.extract_condata_0_output) = self.__extract_condata(self.__extract_condata_0_input, self.__find_contours_0_input)
+
+            # Step Find_Distance0:
+            if focal_length != None:
+                self.__find_distance_0_input = self.extract_condata_0_output
+                if self.__find_distance_0_input != None:
+                    (self.find_distance_0_output) = self.__find_distance(self.known_widthcone, focal_length, self.__find_distance_0_input[4])
+
         else:
             # Step HSV_Threshold1:
             self.__hsv_threshold_1_input = self.resize_image_output
@@ -134,13 +151,19 @@ class DualPipeline:
             self.__find_contours_1_input = self.cv_erode_1_output
             (self.find_contours_1_output) = self.__find_contours(self.__find_contours_1_input, self.__find_contours_1_external_only)
 
-            # Step Filter_Contours0:
+            # Step Filter_Contours1:
             self.__filter_contours_1_contours = self.find_contours_1_output
             (self.filter_contours_1_output) = self.__filter_contours(self.__filter_contours_1_contours, self.__filter_contours_1_min_area, self.__filter_contours_1_min_perimeter, self.__filter_contours_1_min_width, self.__filter_contours_1_max_width, self.__filter_contours_1_min_height, self.__filter_contours_1_max_height, self.__filter_contours_1_solidity, self.__filter_contours_1_max_vertices, self.__filter_contours_1_min_vertices, self.__filter_contours_1_min_ratio, self.__filter_contours_1_max_ratio)
 
-            # Step Extract_ConData0:
+            # Step Extract_ConData1:
             self.__extract_condata_1_input = self.filter_contours_1_output
             (self.extract_condata_1_output) = self.__extract_condata(self.__extract_condata_1_input, self.__find_contours_1_input)
+            
+            # Step Find_Distance1:
+            if focal_length != None:
+                self.__find_distance_1_input = self.extract_condata_1_output
+                if self.__find_distance_1_input != None:
+                    (self.find_distance_1_output) = self.__find_distance(self.known_widthcube, focal_length, self.__find_distance_1_input[4])
 
             
 
@@ -273,5 +296,9 @@ class DualPipeline:
             cv2.circle(hsv_cam, (int(centerw),int(centerh)),5,(135,50,30),-1)
             cv2.imshow("result",hsv_cam)
 
-            return "centerh = " + str(centerh), "centerw = " + str(centerw), "x coord = " + str(x), "y coord = " + str(y), "rect width = " + str(w), "rect height = " + str(h), "rect area = " + str(area)
-            #return centerh, centerw, x, y, w, h, int(area)
+            #return "centerh = " + str(centerh), "centerw = " + str(centerw), "x coord = " + str(x), "y coord = " + str(y), "rect width = " + str(w), "rect height = " + str(h), "rect area = " + str(area)
+            return centerh, centerw, x, y, int(w), h, int(area)
+    
+    @staticmethod
+    def __find_distance(KNOWN_WIDTH, focal_length, new_width):
+        return (KNOWN_WIDTH * focal_length) / new_width
