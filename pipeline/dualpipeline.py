@@ -107,7 +107,6 @@ class DualPipeline:
         Runs the pipeline and sets all outputs to new values.
         """
         
-        #if camtype == 0:
         self.__resize_image_input = source0
         (self.resize_image_output) = self.__resize_image(self.__resize_image_input, self.__resize_image_width, self.__resize_image_height, self.__resize_image_interpolation)
 
@@ -225,7 +224,6 @@ class DualPipeline:
             mode = cv2.RETR_LIST
         method = cv2.CHAIN_APPROX_SIMPLE
         contours, hierarchy =cv2.findContours(input, mode=mode, method=method)
-        ###END GRIP STUFF###
         
         if contours:
 
