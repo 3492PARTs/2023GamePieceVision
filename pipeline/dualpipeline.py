@@ -20,15 +20,15 @@ class DualPipeline:
 
         self.__hsv_threshold_0_input = self.resize_image_output
         self.__hsv_threshold_0_hue = [19.424460431654676, 66.16392394951268]
-        self.__hsv_threshold_0_saturation = [89.43345323741006, 255.0]
-        self.__hsv_threshold_0_value = [165.18996667073122, 255.0]
+        self.__hsv_threshold_0_saturation = [50.43345323741006, 255.0]
+        self.__hsv_threshold_0_value = [100.18996667073122, 255.0]
 
         self.hsv_threshold_0_output = None
 
         self.__hsv_threshold_1_input = self.resize_image_output
-        self.__hsv_threshold_1_hue = [98.3050847457627, 149.94727592267134]
-        self.__hsv_threshold_1_saturation = [45.62146892655367, 181.05448154657293]
-        self.__hsv_threshold_1_value = [83.75011172432892, 190.04041188418918]
+        self.__hsv_threshold_1_hue = [90.3050847457627, 155.94727592267134]
+        self.__hsv_threshold_1_saturation = [45.62146892655367, 255.05448154657293]
+        self.__hsv_threshold_1_value = [15.75011172432892, 254.04041188418918]
 
         self.hsv_threshold_1_output = None
 
@@ -97,8 +97,8 @@ class DualPipeline:
 
         ###################################
         #distance is in feet, width in pixels
-        self.known_widthcube = 512 ##################FIND THIS!##################
-        self.known_widthcone = 512
+        self.known_widthcube = 205 ##################FIND THIS!##################
+        self.known_widthcone = 229
         ###################################
 
 

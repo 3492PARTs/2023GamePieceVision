@@ -20,7 +20,7 @@ from pipeline.dualpipeline import DualPipeline
 np.set_printoptions(suppress=True)
 
 # CAMERA can be 0 or 1 based on default camera of your computer
-camera = cv2.VideoCapture(0)
+camera = cv2.VideoCapture(1)
 
 # Initiate the pipeline and calibration
 dualpipecube = DualPipeline()
@@ -31,10 +31,13 @@ dualcalibratecone = DualPipeline()
 # Initiate focal length and distance values
 focal_lengthcube = None
 focal_lengthcone = None
+centerw = None
+difference_in_pix_x = None
+
 
 #width in pixels, distance in feet
-KNOWN_WIDTHCUBE = 512 #########################FIND THIS!!!##########################
-KNOWN_WIDTHCONE = 512 #this too 
+KNOWN_WIDTHCUBE = 205 #########################FIND THIS!!!##########################
+KNOWN_WIDTHCONE = 229 #this too 
 KNOWN_DISTANCE = 2 #feet
 
 
@@ -74,11 +77,32 @@ while True:
     dualpipecube.process(source0=image, gametype=1, focal_length=focal_lengthcube)
 
     #if dualpipecone.extract_condata_0_output[6] != None & dualpipecube.extract_condata_1_output[6] != None & dualpipecone.extract_condata_0_output[6] <= dualpipecube.extract_condata_1_output[6]:
-    if dualpipecube.find_distance_1_output != None:
-        print(dualpipecube.find_distance_1_output)
+    if dualpipecone.find_distance_0_output != None and dualpipecube.find_distance_1_output != None:
+        if dualpipecone.find_distance_0_output >= dualpipecube.find_distance_1_output:
+            if dualpipecube.extract_condata_1_output != None:
+                centerw = dualpipecube.extract_condata_1_output[1]
+                difference_in_pix_x = centerw - 320
+                print(str(dualpipecube.find_distance_1_output) + " cube feeties, " + str(difference_in_pix_x) + " pixels off from center")
+
+        else:
+            if dualpipecone.extract_condata_0_output != None:
+                centerw = dualpipecone.extract_condata_0_output[1]
+                difference_in_pix_x = centerw - 320
+                print(str(dualpipecone.find_distance_0_output) + " cone feeties, " + str(difference_in_pix_x) + " pixels off from center")
+    
+    if dualpipecube.find_distance_1_output != None and dualpipecone.find_contours_0_output == None:
+        if dualpipecube.extract_condata_1_output != None:
+            centerw = dualpipecube.extract_condata_1_output[1]
+            difference_in_pix_x = centerw - 320
+            print(str(dualpipecube.find_distance_1_output) + " cube feeties, " + str(difference_in_pix_x) + " pixels off from center")
+            print()
     #elif dualpipecone.extract_condata_0_output[6] != None & dualpipecube.extract_condata_1_output[6] != None & dualpipecone.extract_condata_0_output[6] > dualpipecube.extract_condata_1_output[6]:
-    if dualpipecone.find_distance_0_output != None:    
-        print(dualpipecone.find_distance_0_output)
+    if dualpipecone.find_distance_0_output != None and dualpipecube.find_distance_1_output == None:    
+        if dualpipecone.extract_condata_0_output != None:
+            centerw = dualpipecone.extract_condata_0_output[1]
+            difference_in_pix_x = centerw - 320
+            print(str(dualpipecone.find_distance_0_output) + " cone feeties, " + str(difference_in_pix_x) + " pixels off from center")
+            print()
     ###############################################################################
 
     # Listen to the keyboard for presses.
