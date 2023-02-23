@@ -19,9 +19,9 @@ class Pipeline:
         self.resize_image_output = None
 
         self.__hsv_threshold_0_input = self.resize_image_output
-        self.__hsv_threshold_0_hue = [19.424460431654676, 66.16392394951268]
-        self.__hsv_threshold_0_saturation = [50.43345323741006, 255.0]
-        self.__hsv_threshold_0_value = [100.18996667073122, 255.0]
+        self.__hsv_threshold_0_hue = [13, 58]
+        self.__hsv_threshold_0_saturation = [78, 255]
+        self.__hsv_threshold_0_value = [29, 255]
 
         self.hsv_threshold_0_output = None
 

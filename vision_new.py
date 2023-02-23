@@ -6,7 +6,7 @@ import ntcore as networktables
 import os
 from os.path import basename
 import math
-import argparse
+#import argparse
 #import logging
 
 #logging.basicConfig(level=logging.DEBUG)
@@ -17,17 +17,17 @@ amongus = "amongus"
 ########################### NETWORK TABLES #########################
 
 # test server stuff
-parser = argparse.ArgumentParser()
-parser.add_argument("ip", type=str, help="IP address to connect to")
-args = parser.parse_args()
+#parser = argparse.ArgumentParser()
+#parser.add_argument("ip", type=str, help="IP address to connect to")
+#args = parser.parse_args()
 
 instance = networktables.NetworkTableInstance.getDefault()
 
 identity = f"{basename(__file__)}-{os.getpid()}"
 instance.startClient4(identity)
-instance.setServer(server_name=args.ip, port=networktables.NetworkTableInstance.kDefaultPort4)
+#instance.setServer(server_name=args.ip, port=networktables.NetworkTableInstance.kDefaultPort4)
 
-#instance.setServerTeam(team=3492, port=networktables.NetworkTableInstance.kDefaultPort4)
+instance.setServerTeam(team=3492, port=networktables.NetworkTableInstance.kDefaultPort4)
 
 table = instance.getTable("vision")
 distance = table.getFloatTopic("distance").publish()
