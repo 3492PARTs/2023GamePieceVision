@@ -6,27 +6,28 @@ import ntcore as networktables
 import os
 from os.path import basename
 import math
+#uncomment this for the test server
 #import argparse
-#import logging
 
-#logging.basicConfig(level=logging.DEBUG)
-
-
-amongus = "amongus"
 
 ########################### NETWORK TABLES #########################
 
-# test server stuff
-#parser = argparse.ArgumentParser()
-#parser.add_argument("ip", type=str, help="IP address to connect to")
-#args = parser.parse_args()
+
 
 instance = networktables.NetworkTableInstance.getDefault()
 
 identity = f"{basename(__file__)}-{os.getpid()}"
 instance.startClient4(identity)
-#instance.setServer(server_name=args.ip, port=networktables.NetworkTableInstance.kDefaultPort4)
 
+
+#### TEST SERVER ####
+#parser = argparse.ArgumentParser()
+#parser.add_argument("ip", type=str, help="IP address to connect to")
+#args = parser.parse_args()
+#instance.setServer(server_name=args.ip, port=networktables.NetworkTableInstance.kDefaultPort4)
+#####################
+
+# Comment this out for the test server
 instance.setServerTeam(team=3492, port=networktables.NetworkTableInstance.kDefaultPort4)
 
 table = instance.getTable("vision")
@@ -36,6 +37,7 @@ angle = table.getFloatTopic("angle").publish()
 
 ###################################################################
 
+# ew scientific notation
 np.set_printoptions(suppress=True)
 
 classNames = [0, 1]
@@ -48,30 +50,30 @@ camera = cv.VideoCapture(1)
 KNOWN_VALUES = [205, 229, 2] # cube width, cone width, distance in ft
 CALIBRATE_IMAGES = [cv.imread("images\calibratecone.png"), cv.imread("images\calibratecube.png")]
 
-dualpipecube = Pipeline()
-dualpipecone = Pipeline()
-dualcalibratecube = Pipeline()
-dualcalibratecone = Pipeline()
 
+# Might only need calibrate here but we love redundancy :D
+pipeCube = Pipeline()
+pipeCone = Pipeline()
+calibrateCube = Pipeline()
+calibrateCone = Pipeline()
 
-dualcalibratecone.process(source0=CALIBRATE_IMAGES[0], gametype=0, focalLength=None)
-dualcalibratecube.process(source0=CALIBRATE_IMAGES[1], gametype=1, focalLength=None)
+##### CALIBRATES THE FOCAL LENGTH FOR DISTANCE ESTIMATION ######
+calibrateCone.process(source0=CALIBRATE_IMAGES[0], gametype=0, focalLength=None)
+calibrateCube.process(source0=CALIBRATE_IMAGES[1], gametype=1, focalLength=None)
 
 focalLengths = []
 
-"""Game piece types: 0 = cone
-Game Piece type 1 = cube"""
-
 def calibrateWidthAndFocalLength(gamePieceType: int) -> None:
     if gamePieceType == 0:
-        calibratedWidth = float(dualcalibratecone.extract_condata_0_output[4])
+        calibratedWidth = float(calibrateCone.extract_condata_0_output[4])
     else:
-        calibratedWidth = float(dualcalibratecube.extract_condata_1_output[4])
+        calibratedWidth = float(calibrateCube.extract_condata_1_output[4])
 
     focalLengths.append((calibratedWidth * KNOWN_VALUES[2]) / KNOWN_VALUES[gamePieceType])
 
 calibrateWidthAndFocalLength(0)
 calibrateWidthAndFocalLength(1)
+################################################################
 
 def calculateAngle(differenceInPixels: float) -> float:
     diagonalPixels = math.sqrt(math.pow(height, 2) + math.pow(width, 2))
@@ -80,48 +82,48 @@ def calculateAngle(differenceInPixels: float) -> float:
     return angle
 
 def findDistanceAndPixels():
-    if dualpipecone.find_distance_0_output != None and dualpipecube.find_distance_1_output != None:
-        if dualpipecone.find_distance_0_output >= dualpipecube.find_distance_1_output:
-            if dualpipecube.extract_condata_1_output != None:
-                centerw = dualpipecube.extract_condata_1_output[1]
+    if pipeCone.find_distance_0_output != None and pipeCube.find_distance_1_output != None:
+        if pipeCone.find_distance_0_output >= pipeCube.find_distance_1_output:
+            if pipeCube.extract_condata_1_output != None:
+                centerw = pipeCube.extract_condata_1_output[1]
                 difference_in_pix_x = centerw - 320
-                distance.set(value=float(dualpipecube.find_distance_1_output))
+                distance.set(value=float(pipeCube.find_distance_1_output))
                 pixels.set(value=float(difference_in_pix_x))
                 angle.set(value=float(calculateAngle(differenceInPixels=difference_in_pix_x)))
 
         else:
-            if dualpipecone.extract_condata_0_output != None:
-                centerw = dualpipecone.extract_condata_0_output[1]
+            if pipeCone.extract_condata_0_output != None:
+                centerw = pipeCone.extract_condata_0_output[1]
                 difference_in_pix_x = centerw - 320
-                distance.set(value=float(dualpipecone.find_distance_0_output))
+                distance.set(value=float(pipeCone.find_distance_0_output))
                 pixels.set(value=float(difference_in_pix_x))
                 angle.set(value=float(calculateAngle(differenceInPixels=difference_in_pix_x)))
     
-    if dualpipecube.find_distance_1_output != None and dualpipecone.find_contours_0_output == None:
-        if dualpipecube.extract_condata_1_output != None:
-            centerw = dualpipecube.extract_condata_1_output[1]
+    if pipeCube.find_distance_1_output != None and pipeCone.find_contours_0_output == None:
+        if pipeCube.extract_condata_1_output != None:
+            centerw = pipeCube.extract_condata_1_output[1]
             difference_in_pix_x = centerw - 320
-            distance.set(value=float(dualpipecube.find_distance_1_output))
+            distance.set(value=float(pipeCube.find_distance_1_output))
             pixels.set(value=float(difference_in_pix_x))
             angle.set(value=float(calculateAngle(differenceInPixels=difference_in_pix_x)))
     
-    if dualpipecone.find_distance_0_output != None and dualpipecube.find_distance_1_output == None:    
-        if dualpipecone.extract_condata_0_output != None:
-            centerw = dualpipecone.extract_condata_0_output[1]
+    if pipeCone.find_distance_0_output != None and pipeCube.find_distance_1_output == None:    
+        if pipeCone.extract_condata_0_output != None:
+            centerw = pipeCone.extract_condata_0_output[1]
             difference_in_pix_x = centerw - 320
-            distance.set(value=float(dualpipecone.find_distance_0_output))
+            distance.set(value=float(pipeCone.find_distance_0_output))
             pixels.set(value=float(difference_in_pix_x))
             angle.set(value=float(calculateAngle(differenceInPixels=difference_in_pix_x)))
 
 while True:
-    print(amongus)
     ret, image = camera.read()
 
-    
-    dualpipecone.process(source0=image, gametype=0, focalLength=focalLengths[0])
-    dualpipecube.process(source0=image, gametype=1, focalLength=focalLengths[1])
+    ################# IMPORTANT STUFF #################
+    pipeCone.process(source0=image, gametype=0, focalLength=focalLengths[0])
+    pipeCube.process(source0=image, gametype=1, focalLength=focalLengths[1])
 
     findDistanceAndPixels()
+    ###################################################
 
     keyboardInput = cv.waitKey(1)
     # 27 = ascii code for escape.
