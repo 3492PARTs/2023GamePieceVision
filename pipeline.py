@@ -292,7 +292,6 @@ class Pipeline:
             #draws a rectangle onto "input", where (x,y) are one vertice, and (x+width, y+height) is the opposite one.
             cv2.rectangle(hsv_cam,(x,y),(x+w,y+h),(135,50,30),3)
             cv2.circle(hsv_cam, (int(centerw),int(centerh)),5,(135,50,30),-1)
-            cv2.imshow("result",hsv_cam)
 
             #return "centerh = " + str(centerh), "centerw = " + str(centerw), "x coord = " + str(x), "y coord = " + str(y), "rect width = " + str(w), "rect height = " + str(h), "rect area = " + str(area)
             return centerh, centerw, x, y, int(w), int(h), int(area)
