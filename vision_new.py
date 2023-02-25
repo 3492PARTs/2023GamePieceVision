@@ -1,4 +1,3 @@
-from keras.models import load_model
 import cv2 as cv
 import numpy as np
 from pipeline import Pipeline
@@ -52,7 +51,7 @@ fov = 68.5
 camera = cv.VideoCapture(1)
 
 KNOWN_VALUES = [205, 229, 2] # cube width, cone width, distance in ft
-CALIBRATE_IMAGES = [cv.imread("images\calibratecone.png"), cv.imread("images\calibratecube.png")]
+CALIBRATE_IMAGES = [cv.imread("calibratecone.png"), cv.imread("calibratecube.png")]
 
 
 # Might only need calibrate here but we love redundancy :D
