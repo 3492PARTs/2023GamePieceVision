@@ -47,7 +47,7 @@ fov = 68.5
 camera = cv.VideoCapture(1)
 
 KNOWN_VALUES = [205, 229, 2] # cube width, cone width, distance in ft
-CALIBRATE_IMAGES = [cv.imread("calibratecone.png"), cv.imread("calibratecube.png")]
+CALIBRATE_IMAGES = [cv.imread("calibratecone.PNG"), cv.imread("calibratecube.PNG")]
 
 
 # Might only need calibrate here but we love redundancy :D
@@ -91,7 +91,7 @@ def findDistanceAndPixels():
                 angle.set(value=float(calculateAngle(differenceInPixels=difference_in_pix_x)))
 
         else:
-            if pipeCone.extract_condata_0_output != None:
+            if pipeCone.extract_condata_0_output != None and pipeCone.extract_condata_0_output[5] > pipecone.extract_condata_0_output[4]:
                 centerw = pipeCone.extract_condata_0_output[1]
                 difference_in_pix_x = centerw - 320
                 distance.set(value=float(pipeCone.find_distance_0_output))
@@ -107,7 +107,7 @@ def findDistanceAndPixels():
             angle.set(value=float(calculateAngle(differenceInPixels=difference_in_pix_x)))
     
     if pipeCone.find_distance_0_output != None and pipeCube.find_distance_1_output == None:    
-        if pipeCone.extract_condata_0_output != None:
+        if pipeCone.extract_condata_0_output != None and pipeCone.extract_condata_0_output[5] > pipecone.extract_condata_0_output[4]:
             centerw = pipeCone.extract_condata_0_output[1]
             difference_in_pix_x = centerw - 320
             distance.set(value=float(pipeCone.find_distance_0_output))

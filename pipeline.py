@@ -295,7 +295,7 @@ class Pipeline:
             cv2.imshow("result",hsv_cam)
 
             #return "centerh = " + str(centerh), "centerw = " + str(centerw), "x coord = " + str(x), "y coord = " + str(y), "rect width = " + str(w), "rect height = " + str(h), "rect area = " + str(area)
-            return centerh, centerw, x, y, int(w), h, int(area)
+            return centerh, centerw, x, y, int(w), int(h), int(area)
     
     @staticmethod
     def __find_distance(KNOWN_WIDTH, focalLength, new_width):
