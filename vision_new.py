@@ -27,12 +27,15 @@ instance.startClient4(identity)
 #####################
 
 # Comment this out for the test server
-instance.setServerTeam(team=3492, port=networktables.NetworkTableInstance.kDefaultPort4)
+#instance.setServerTeam(team=3492, port=networktables.NetworkTableInstance.kDefaultPort4)
+
+#instance.startDSClient()
+instance.setServer("10.34.92.2", networktables.NetworkTableInstance.kDefaultPort4)
 
 table = instance.getTable("vision")
-distance = table.getFloatTopic("distance").publish()
-pixels = table.getFloatTopic("pixels").publish()
-angle = table.getFloatTopic("angle").publish()
+distance = table.getFloatTopic("distance")
+pixels = table.getFloatTopic("pixels")
+angle = table.getFloatTopic("angle")
 
 ###################################################################
 
@@ -44,7 +47,7 @@ classNames = [0, 1]
 height, width = 480, 640
 fov = 68.5
 
-camera = cv.VideoCapture(1)
+camera = cv.VideoCapture(0)
 
 KNOWN_VALUES = [205, 229, 2] # cube width, cone width, distance in ft
 CALIBRATE_IMAGES = [cv.imread("calibratecone.PNG"), cv.imread("calibratecube.PNG")]
@@ -63,6 +66,7 @@ calibrateCube.process(source0=CALIBRATE_IMAGES[1], gametype=1, focalLength=None)
 focalLengths = []
 
 def calibrateWidthAndFocalLength(gamePieceType: int) -> None:
+    calibratedWidth = 0
     if gamePieceType == 0:
         calibratedWidth = float(calibrateCone.extract_condata_0_output[4])
     else:
@@ -86,33 +90,33 @@ def findDistanceAndPixels():
             if pipeCube.extract_condata_1_output != None:
                 centerw = pipeCube.extract_condata_1_output[1]
                 difference_in_pix_x = centerw - 320
-                distance.set(value=float(pipeCube.find_distance_1_output))
-                pixels.set(value=float(difference_in_pix_x))
-                angle.set(value=float(calculateAngle(differenceInPixels=difference_in_pix_x)))
+                table.putNumber("distance", float(pipeCube.find_distance_1_output))
+                table.putNumber("pixels", float(difference_in_pix_x))
+                table.putNumber("angle", float(calculateAngle(differenceInPixels=difference_in_pix_x)))
 
         else:
             if pipeCone.extract_condata_0_output != None and pipeCone.extract_condata_0_output[5] > pipeCone.extract_condata_0_output[4]:
                 centerw = pipeCone.extract_condata_0_output[1]
                 difference_in_pix_x = centerw - 320
-                distance.set(value=float(pipeCone.find_distance_0_output))
-                pixels.set(value=float(difference_in_pix_x))
-                angle.set(value=float(calculateAngle(differenceInPixels=difference_in_pix_x)))
+                table.putNumber("distance", float(pipeCube.find_distance_1_output))
+                table.putNumber("pixels", float(difference_in_pix_x))
+                table.putNumber("angle", float(calculateAngle(differenceInPixels=difference_in_pix_x)))
     
     if pipeCube.find_distance_1_output != None and pipeCone.find_contours_0_output == None:
         if pipeCube.extract_condata_1_output != None:
             centerw = pipeCube.extract_condata_1_output[1]
             difference_in_pix_x = centerw - 320
-            distance.set(value=float(pipeCube.find_distance_1_output))
-            pixels.set(value=float(difference_in_pix_x))
-            angle.set(value=float(calculateAngle(differenceInPixels=difference_in_pix_x)))
+            table.putNumber("distance", float(pipeCube.find_distance_1_output))
+            table.putNumber("pixels", float(difference_in_pix_x))
+            table.putNumber("angle", float(calculateAngle(differenceInPixels=difference_in_pix_x)))
     
     if pipeCone.find_distance_0_output != None and pipeCube.find_distance_1_output == None:    
         if pipeCone.extract_condata_0_output != None and pipeCone.extract_condata_0_output[5] > pipeCone.extract_condata_0_output[4]:
             centerw = pipeCone.extract_condata_0_output[1]
             difference_in_pix_x = centerw - 320
-            distance.set(value=float(pipeCone.find_distance_0_output))
-            pixels.set(value=float(difference_in_pix_x))
-            angle.set(value=float(calculateAngle(differenceInPixels=difference_in_pix_x)))
+            table.putNumber("distance", float(pipeCube.find_distance_1_output))
+            table.putNumber("pixels", float(difference_in_pix_x))
+            table.putNumber("angle", float(calculateAngle(differenceInPixels=difference_in_pix_x)))
 
 while True:
     ret, image = camera.read()
