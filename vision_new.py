@@ -26,8 +26,6 @@ instance.startClient4(identity)
 #instance.setServer(server_name=args.ip, port=networktables.NetworkTableInstance.kDefaultPort4)
 #####################
 
-# Comment this out for the test server
-#instance.setServerTeam(team=3492, port=networktables.NetworkTableInstance.kDefaultPort4)
 
 #instance.startDSClient()
 instance.setServer("10.34.92.2", networktables.NetworkTableInstance.kDefaultPort4)
@@ -44,8 +42,8 @@ np.set_printoptions(suppress=True)
 
 classNames = [0, 1]
 
-height, width = 480, 640
-fov = 68.5
+height, width = 720, 1280 #pixels
+horzAngle = 60 #degrees
 
 camera = cv.VideoCapture(0)
 
@@ -79,9 +77,9 @@ calibrateWidthAndFocalLength(1)
 ################################################################
 
 def calculateAngle(differenceInPixels: float) -> float:
-    diagonalPixels = math.sqrt(math.pow(height, 2) + math.pow(width, 2))
-    degreePerPixel = fov / diagonalPixels
-    angle = degreePerPixel * differenceInPixels
+    horizontalPixels = horzAngle / width
+    angle = horizontalPixels * differenceInPixels
+    print(angle)
     return angle
 
 def findDistanceAndPixels():
@@ -89,7 +87,7 @@ def findDistanceAndPixels():
         if pipeCone.find_distance_0_output >= pipeCube.find_distance_1_output:
             if pipeCube.extract_condata_1_output != None:
                 centerw = pipeCube.extract_condata_1_output[1]
-                difference_in_pix_x = centerw - 320
+                difference_in_pix_x = centerw - 640
                 table.putNumber("distance", float(pipeCube.find_distance_1_output))
                 table.putNumber("pixels", float(difference_in_pix_x))
                 table.putNumber("angle", float(calculateAngle(differenceInPixels=difference_in_pix_x)))
@@ -97,7 +95,7 @@ def findDistanceAndPixels():
         else:
             if pipeCone.extract_condata_0_output != None and pipeCone.extract_condata_0_output[5] > pipeCone.extract_condata_0_output[4]:
                 centerw = pipeCone.extract_condata_0_output[1]
-                difference_in_pix_x = centerw - 320
+                difference_in_pix_x = centerw - 640
                 table.putNumber("distance", float(pipeCube.find_distance_1_output))
                 table.putNumber("pixels", float(difference_in_pix_x))
                 table.putNumber("angle", float(calculateAngle(differenceInPixels=difference_in_pix_x)))

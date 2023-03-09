@@ -12,8 +12,8 @@ class Pipeline:
         """initializes all values to presets or None if need to be set
         """
 
-        self.__resize_image_width = 640.0
-        self.__resize_image_height = 480.0
+        self.__resize_image_width = 1280.0
+        self.__resize_image_height = 720.0
         self.__resize_image_interpolation = cv2.INTER_CUBIC
 
         self.resize_image_output = None
@@ -292,6 +292,7 @@ class Pipeline:
             #draws a rectangle onto "input", where (x,y) are one vertice, and (x+width, y+height) is the opposite one.
             cv2.rectangle(hsv_cam,(x,y),(x+w,y+h),(135,50,30),3)
             cv2.circle(hsv_cam, (int(centerw),int(centerh)),5,(135,50,30),-1)
+            cv2.imshow("result",hsv_cam)
 
             #return "centerh = " + str(centerh), "centerw = " + str(centerw), "x coord = " + str(x), "y coord = " + str(y), "rect width = " + str(w), "rect height = " + str(h), "rect area = " + str(area)
             return centerh, centerw, x, y, int(w), int(h), int(area)
