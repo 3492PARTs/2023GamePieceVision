@@ -20,13 +20,13 @@ class Pipeline:
 
 
         self.__hsv_threshold_1_input = self.resize_image_output
-        self.__hsv_threshold_1_hue = [90.3050847457627, 155.94727592267134]
-        self.__hsv_threshold_1_saturation = [45.62146892655367, 255.05448154657293]
-        self.__hsv_threshold_1_value = [15.75011172432892, 254.04041188418918]
+        self.__hsv_threshold_1_hue = [115, 125]
+        self.__hsv_threshold_1_saturation = [20, 255]
+        self.__hsv_threshold_1_value = [10, 255]
 
         self.hsv_threshold_1_output = None
 
-
+        #the erodes are actually dilates, just ignore that
         self.__cv_erode_1_src = self.hsv_threshold_1_output
         self.__cv_erode_1_kernel = None
         self.__cv_erode_1_anchor = (-1, -1)
@@ -141,7 +141,7 @@ class Pipeline:
         Returns:
             A numpy.ndarray after erosion.
         """
-        return cv2.erode(src, kernel, anchor, iterations = (int) (iterations +0.5),
+        return cv2.dilate(src, kernel, anchor, iterations = (int) (iterations +0.5),
                             borderType = border_type, borderValue = border_value)
 
     @staticmethod
