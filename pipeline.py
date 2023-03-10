@@ -18,12 +18,6 @@ class Pipeline:
 
         self.resize_image_output = None
 
-        self.__hsv_threshold_0_input = self.resize_image_output
-        self.__hsv_threshold_0_hue = [13, 58]
-        self.__hsv_threshold_0_saturation = [78, 255]
-        self.__hsv_threshold_0_value = [29, 255]
-
-        self.hsv_threshold_0_output = None
 
         self.__hsv_threshold_1_input = self.resize_image_output
         self.__hsv_threshold_1_hue = [90.3050847457627, 155.94727592267134]
@@ -32,14 +26,6 @@ class Pipeline:
 
         self.hsv_threshold_1_output = None
 
-        self.__cv_erode_0_src = self.hsv_threshold_0_output
-        self.__cv_erode_0_kernel = None
-        self.__cv_erode_0_anchor = (-1, -1)
-        self.__cv_erode_0_iterations = 1.0
-        self.__cv_erode_0_bordertype = cv2.BORDER_CONSTANT
-        self.__cv_erode_0_bordervalue = (-1)
-
-        self.cv_erode_0_output = None
 
         self.__cv_erode_1_src = self.hsv_threshold_1_output
         self.__cv_erode_1_kernel = None
@@ -50,30 +36,12 @@ class Pipeline:
 
         self.cv_erode_1_output = None
 
-        self.__find_contours_0_input = self.cv_erode_0_output
-        self.__find_contours_0_external_only = False
-
-        self.find_contours_0_output = None
 
         self.__find_contours_1_input = self.cv_erode_1_output
         self.__find_contours_1_external_only = False
 
         self.find_contours_1_output = None
 
-        self.__filter_contours_0_contours = self.find_contours_0_output
-        self.__filter_contours_0_min_area = 100.0
-        self.__filter_contours_0_min_perimeter = 0.0
-        self.__filter_contours_0_min_width = 0.0
-        self.__filter_contours_0_max_width = 1000.0
-        self.__filter_contours_0_min_height = 0.0
-        self.__filter_contours_0_max_height = 1000.0
-        self.__filter_contours_0_solidity = [0, 100]
-        self.__filter_contours_0_max_vertices = 1000000.0
-        self.__filter_contours_0_min_vertices = 0.0
-        self.__filter_contours_0_min_ratio = 0.0
-        self.__filter_contours_0_max_ratio = 1000.0
-
-        self.filter_contours_0_output = None
 
         self.__filter_contours_1_contours = self.find_contours_1_output
         self.__filter_contours_1_min_area = 700.0
@@ -90,19 +58,17 @@ class Pipeline:
 
         self.filter_contours_1_output = None
 
-        self.extract_condata_0_output = None
         self.extract_condata_1_output = None
         self.find_distance_1_output = None
-        self.find_distance_0_output = None
+
 
         ###################################
         #distance is in feet, width in pixels
-        self.known_widthcube = 205 ##################FIND THIS!##################
-        self.known_widthcone = 229
+        self.known_widthcube = 205 
         ###################################
 
 
-    def process(self, source0, gametype, focalLength):
+    def process(self, source0, focalLength):
         """
         Runs the pipeline and sets all outputs to new values.
         """
@@ -110,59 +76,28 @@ class Pipeline:
         self.__resize_image_input = source0
         (self.resize_image_output) = self.__resize_image(self.__resize_image_input, self.__resize_image_width, self.__resize_image_height, self.__resize_image_interpolation)
 
-        if gametype == 0:
-            # Step HSV_Threshold0:
-            self.__hsv_threshold_0_input = self.resize_image_output
-            (self.hsv_threshold_0_output) = self.__hsv_threshold(self.__hsv_threshold_0_input, self.__hsv_threshold_0_hue, self.__hsv_threshold_0_saturation, self.__hsv_threshold_0_value)
 
-            # Step CV_erode0:
-            self.__cv_erode_0_src = self.hsv_threshold_0_output
-            (self.cv_erode_0_output) = self.__cv_erode(self.__cv_erode_0_src, self.__cv_erode_0_kernel, self.__cv_erode_0_anchor, self.__cv_erode_0_iterations, self.__cv_erode_0_bordertype, self.__cv_erode_0_bordervalue)
-
-            # Step Find_Contours0:
-            self.__find_contours_0_input = self.cv_erode_0_output
-            (self.find_contours_0_output) = self.__find_contours(self.__find_contours_0_input, self.__find_contours_0_external_only)
-            
-            # Step Filter_Contours0:
-            self.__filter_contours_0_contours = self.find_contours_0_output
-            (self.filter_contours_0_output) = self.__filter_contours(self.__filter_contours_0_contours, self.__filter_contours_0_min_area, self.__filter_contours_0_min_perimeter, self.__filter_contours_0_min_width, self.__filter_contours_0_max_width, self.__filter_contours_0_min_height, self.__filter_contours_0_max_height, self.__filter_contours_0_solidity, self.__filter_contours_0_max_vertices, self.__filter_contours_0_min_vertices, self.__filter_contours_0_min_ratio, self.__filter_contours_0_max_ratio)
-        
-            # Step Extract_ConData0:
-            self.__extract_condata_0_input = self.filter_contours_0_output
-            (self.extract_condata_0_output) = self.__extract_condata(self.__extract_condata_0_input, self.__find_contours_0_input)
-
-            # Step Find_Distance0:
-            if focalLength != None:
-                self.__find_distance_0_input = self.extract_condata_0_output
-                if self.__find_distance_0_input != None:
-                    (self.find_distance_0_output) = self.__find_distance(self.known_widthcone, focalLength, self.__find_distance_0_input[4])
-
-        else:
             # Step HSV_Threshold1:
-            self.__hsv_threshold_1_input = self.resize_image_output
-            (self.hsv_threshold_1_output) = self.__hsv_threshold(self.__hsv_threshold_1_input, self.__hsv_threshold_1_hue, self.__hsv_threshold_1_saturation, self.__hsv_threshold_1_value)
-
-            # Step CV_erode1:
-            self.__cv_erode_1_src = self.hsv_threshold_1_output
-            (self.cv_erode_1_output) = self.__cv_erode(self.__cv_erode_1_src, self.__cv_erode_1_kernel, self.__cv_erode_1_anchor, self.__cv_erode_1_iterations, self.__cv_erode_1_bordertype, self.__cv_erode_1_bordervalue)
-
-            # Step Find_Contours1:
-            self.__find_contours_1_input = self.cv_erode_1_output
-            (self.find_contours_1_output) = self.__find_contours(self.__find_contours_1_input, self.__find_contours_1_external_only)
-
-            # Step Filter_Contours1:
-            self.__filter_contours_1_contours = self.find_contours_1_output
-            (self.filter_contours_1_output) = self.__filter_contours(self.__filter_contours_1_contours, self.__filter_contours_1_min_area, self.__filter_contours_1_min_perimeter, self.__filter_contours_1_min_width, self.__filter_contours_1_max_width, self.__filter_contours_1_min_height, self.__filter_contours_1_max_height, self.__filter_contours_1_solidity, self.__filter_contours_1_max_vertices, self.__filter_contours_1_min_vertices, self.__filter_contours_1_min_ratio, self.__filter_contours_1_max_ratio)
-
-            # Step Extract_ConData1:
-            self.__extract_condata_1_input = self.filter_contours_1_output
-            (self.extract_condata_1_output) = self.__extract_condata(self.__extract_condata_1_input, self.__find_contours_1_input)
+        self.__hsv_threshold_1_input = self.resize_image_output
+        (self.hsv_threshold_1_output) = self.__hsv_threshold(self.__hsv_threshold_1_input, self.__hsv_threshold_1_hue, self.__hsv_threshold_1_saturation, self.__hsv_threshold_1_value)
+        # Step CV_erode1:
+        self.__cv_erode_1_src = self.hsv_threshold_1_output
+        (self.cv_erode_1_output) = self.__cv_erode(self.__cv_erode_1_src, self.__cv_erode_1_kernel, self.__cv_erode_1_anchor, self.__cv_erode_1_iterations, self.__cv_erode_1_bordertype, self.__cv_erode_1_bordervalue)
+        # Step Find_Contours1:
+        self.__find_contours_1_input = self.cv_erode_1_output
+        (self.find_contours_1_output) = self.__find_contours(self.__find_contours_1_input, self.__find_contours_1_external_only)
+        # Step Filter_Contours1:
+        self.__filter_contours_1_contours = self.find_contours_1_output
+        (self.filter_contours_1_output) = self.__filter_contours(self.__filter_contours_1_contours, self.__filter_contours_1_min_area, self.__filter_contours_1_min_perimeter, self.__filter_contours_1_min_width, self.__filter_contours_1_max_width, self.__filter_contours_1_min_height, self.__filter_contours_1_max_height, self.__filter_contours_1_solidity, self.__filter_contours_1_max_vertices, self.__filter_contours_1_min_vertices, self.__filter_contours_1_min_ratio, self.__filter_contours_1_max_ratio)
+        # Step Extract_ConData1:
+        self.__extract_condata_1_input = self.filter_contours_1_output
+        (self.extract_condata_1_output) = self.__extract_condata(self.__extract_condata_1_input, self.__find_contours_1_input)
             
-            # Step Find_Distance1:
-            if focalLength != None:
-                self.__find_distance_1_input = self.extract_condata_1_output
-                if self.__find_distance_1_input != None:
-                    (self.find_distance_1_output) = self.__find_distance(self.known_widthcube, focalLength, self.__find_distance_1_input[4])
+        # Step Find_Distance1:
+        if focalLength != None:
+            self.__find_distance_1_input = self.extract_condata_1_output
+            if self.__find_distance_1_input != None:
+                (self.find_distance_1_output) = self.__find_distance(self.known_widthcube, focalLength, self.__find_distance_1_input[4])
 
             
 
@@ -292,9 +227,8 @@ class Pipeline:
             #draws a rectangle onto "input", where (x,y) are one vertice, and (x+width, y+height) is the opposite one.
             cv2.rectangle(hsv_cam,(x,y),(x+w,y+h),(135,50,30),3)
             cv2.circle(hsv_cam, (int(centerw),int(centerh)),5,(135,50,30),-1)
-            cv2.imshow("result",hsv_cam)
+            #cv2.imshow("result",hsv_cam)
 
-            #return "centerh = " + str(centerh), "centerw = " + str(centerw), "x coord = " + str(x), "y coord = " + str(y), "rect width = " + str(w), "rect height = " + str(h), "rect area = " + str(area)
             return centerh, centerw, x, y, int(w), int(h), int(area)
     
     @staticmethod
